@@ -5,11 +5,7 @@ angular.module('trial-app', ['OrderModule', 'AuthModule'])
 
             var d = $q.defer();
 
-            var headers = {};
-
-            async function exec(){
-                await generateToken();
-            }
+            var headers = {};            
 
             function generateToken() {
 
@@ -17,47 +13,50 @@ angular.module('trial-app', ['OrderModule', 'AuthModule'])
 
                     TokenService.RefreshToken().then(function(response){
 
-                        console.log('the token');
-                        console.log(response.data.original.access_token);
-
                         $storage.set('access_token', response.data.original.access_token);
 
                         var token = $storage.get('access_token');
 
-                        console.log(token);
-
                         headers = {
                            'Authorization' : 'Bearer ' + token
                         }
+
+                        resolve(headers); 
                             
                     });
-
-                    resolve(headers); 
 
                 })
  
             }
 
-            if (url != 'api/auth/login') {
-                exec();
+            function request() {
 
-                console.log('here');
-                console.log(headers);
+                $http({
+                    method: method,
+                    url: url,
+                    data: data,
+                    headers : headers
+                }).then(function (response){
+                    d.resolve(response.data);
+                },function (error){
+                    d.reject(error);
+                });
+
+                return d.promise;
             }
 
+            async function exec(){
 
-            $http({
-                method: method,
-                url: url,
-                data: data,
-                headers : headers
-            }).then(function (response){
-                d.resolve(response.data);
-            },function (error){
-                d.reject(error);
-            });
+                const endpoint_exception = ['api/auth/login'];
 
-            return d.promise;
+                if (!endpoint_exception.includes(url)) {
+                    await generateToken();
+                }
+
+                return request();
+            }
+
+            return exec()
 
         },
     }
@@ -76,6 +75,12 @@ angular.module('trial-app', ['OrderModule', 'AuthModule'])
     return {
         Authenticate : function(data) {
             return APIService.MakeRequest('api/auth/login', 'POST', data);
+        },
+        GetUser : function(data) {
+            return APIService.MakeRequest('api/v1/authenticate_user', 'GET');
+        },
+        Logout : function(data) {
+            return APIService.MakeRequest('api/v1/logout', 'GET');
         },
     }
 }])
@@ -133,4 +138,30 @@ angular.module('trial-app', ['OrderModule', 'AuthModule'])
         template :
             '<span>'+name+'</span>'
     };
+})
+.controller('NavController', function NavController($scope, $http, $window, $storage, AuthService) {
+
+    var data = $storage.get('user_data');
+
+    $scope.authenticated = false;
+
+    if (data) {
+        $scope.authenticated = true;
+    }
+
+    $scope.logout = function() {
+        AuthService.Logout().then(function(response) {
+            if (response.success) {
+
+                $storage.remove('user_data');
+                $storage.remove('access_token');
+                $scope.authenticated = false;
+
+                $window.location.href = "/";
+                        
+            }else{
+                alert(response.msg);
+            }
+        });
+    }
 })

@@ -42,11 +42,11 @@ class OrderController extends Controller
 
         foreach($order_items as $key => $value) {
 
-            if (!isset($data['meals'][ $value->meal_type ][ $value->product_id ])) {
-                $data['meals'][ $value->meal_type ][ $value->product_id ] = [];
+            if (!isset($data['meals'][ $value->selection->meal_type ][ $value->meal->id ])) {
+                $data['meals'][ $value->selection->meal_type ][ $value->meal->id ] = [];
             }
 
-            array_push( $data['meals'][ $value->meal_type ][ $value->product_id ] , $value);
+            array_push( $data['meals'][ $value->selection->meal_type ][ $value->meal->id ] , $value);
             
             $total_price += (float)$value->price;
 

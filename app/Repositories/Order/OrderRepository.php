@@ -28,8 +28,8 @@ class OrderRepository implements OrderInterface
         $order_items = $order->order_items()->get();
 
         foreach($order_items as $key => $value) {
-            $order_items[$key]->title = $value->product()->first()->title;
-            $order_items[$key]->meal_type = $value->product()->first()->structure()->first()->meal_type;
+            $order_items[$key]->selection = $value->subscription_cycle()->first()->selections()->first();
+            $order_items[$key]->meal = $value->subscription_cycle()->first()->selections()->first()->meal()->first();
         }
 
     	return $order_items;

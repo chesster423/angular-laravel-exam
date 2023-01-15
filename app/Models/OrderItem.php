@@ -14,4 +14,9 @@ class OrderItem extends Model
     {
         return $this->hasOne(Product::class, 'id', 'product_id');
     }
+
+    public function subscription_cycle()
+    {
+        return $this->hasOne(SubscriptionCycle::class, 'id', 'subscription_cycle_id');
+    }
 }

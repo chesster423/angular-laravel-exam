@@ -28,7 +28,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
 Route::group(['prefix' => 'v1', 'middleware' => ['jwt.verify']], function() {
 
     Route::get('logout', 'AuthController@logout');
-    Route::get('me', 'AuthController@me');
+    Route::get('authenticate_user', 'AuthController@user');
     Route::get('refresh', 'AuthController@refresh');
     Route::get('orders', 'OrderController@getUserOrders');
     Route::get('orders/{id?}', 'OrderController@getOrderDetails');

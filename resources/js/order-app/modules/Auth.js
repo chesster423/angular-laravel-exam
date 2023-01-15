@@ -1,8 +1,6 @@
 angular.module('AuthModule', [])
 .controller('AuthController', function AuthController($scope, $http, $storage, $window, AuthService) {
 
-	$storage.remove('access_token');
-
 	$scope.auth = {};
 
 	$scope.login = function() {

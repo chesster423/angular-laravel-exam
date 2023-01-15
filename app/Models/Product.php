@@ -14,4 +14,9 @@ class Product extends Model
     {
         return $this->hasOne(ProductStructure::class, 'product_id', 'id');
     }
+
+    public function menu()
+    {
+        return $this->hasOne(Menu::class, 'id', 'menu_id');
+    }
 }

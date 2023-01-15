@@ -11,4 +11,9 @@ class SubscriptionSelection extends Model
     protected $guarded = [];
 
     protected $table = 'subscriptions_selections';
+
+    public function meal()
+    {
+        return $this->hasOne(Meal::class, 'id', 'meal_id');
+    }
 }

@@ -1,6 +1,6 @@
 @include ('common/header')
 <body ng-cloak ng-app="trial-app">
-    <div id="app">
+    <div id="app" ng-controller="NavController">
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('home') }}">
@@ -11,7 +11,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="collapse navbar-collapse" id="navbarSupportedContent" ng-if="authenticated"> 
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto">
                         <li class="nav-item">
@@ -24,21 +24,10 @@
                         <!-- Authentication Links -->
 
                         <li class="nav-item dropdown">
-                            <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                            <span class="nav-link" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                 <user-data></user-data>
-                            </a>
-
-                            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="{{ url('logout') }}"
-                                   onclick="event.preventDefault();
-                                                 document.getElementById('logout-form').submit();">
-                                    {{ __('Logout') }}
-                                </a>
-
-                                <form id="logout-form" action="{{ url('logout') }}" method="POST" class="d-none">
-                                    @csrf
-                                </form>
-                            </div>
+                                <a ng-click="logout()">(Logout)</a>
+                            </span>                    
                         </li>
 
                     </ul>

@@ -13,17 +13,50 @@ angular.module('trial-app', ['OrderModule', 'AuthModule']).service("APIService",
       var data = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
       var d = $q.defer();
       var headers = {};
+      function generateToken() {
+        return new Promise(function (resolve) {
+          TokenService.RefreshToken().then(function (response) {
+            $storage.set('access_token', response.data.original.access_token);
+            var token = $storage.get('access_token');
+            headers = {
+              'Authorization': 'Bearer ' + token
+            };
+            resolve(headers);
+          });
+        });
+      }
+      function request() {
+        $http({
+          method: method,
+          url: url,
+          data: data,
+          headers: headers
+        }).then(function (response) {
+          d.resolve(response.data);
+        }, function (error) {
+          d.reject(error);
+        });
+        return d.promise;
+      }
       function exec() {
         return _exec.apply(this, arguments);
       }
       function _exec() {
         _exec = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+          var endpoint_exception;
           return _regeneratorRuntime().wrap(function _callee$(_context) {
             while (1) switch (_context.prev = _context.next) {
               case 0:
-                _context.next = 2;
+                endpoint_exception = ['api/auth/login'];
+                if (endpoint_exception.includes(url)) {
+                  _context.next = 4;
+                  break;
+                }
+                _context.next = 4;
                 return generateToken();
-              case 2:
+              case 4:
+                return _context.abrupt("return", request());
+              case 5:
               case "end":
                 return _context.stop();
             }
@@ -31,37 +64,7 @@ angular.module('trial-app', ['OrderModule', 'AuthModule']).service("APIService",
         }));
         return _exec.apply(this, arguments);
       }
-      function generateToken() {
-        return new Promise(function (resolve) {
-          TokenService.RefreshToken().then(function (response) {
-            console.log('the token');
-            console.log(response.data.original.access_token);
-            $storage.set('access_token', response.data.original.access_token);
-            var token = $storage.get('access_token');
-            console.log(token);
-            headers = {
-              'Authorization': 'Bearer ' + token
-            };
-          });
-          resolve(headers);
-        });
-      }
-      if (url != 'api/auth/login') {
-        exec();
-        console.log('here');
-        console.log(headers);
-      }
-      $http({
-        method: method,
-        url: url,
-        data: data,
-        headers: headers
-      }).then(function (response) {
-        d.resolve(response.data);
-      }, function (error) {
-        d.reject(error);
-      });
-      return d.promise;
+      return exec();
     }
   };
 }]).service('OrderService', ['APIService', 'AuthService', function (APIService, AuthService) {
@@ -77,6 +80,12 @@ angular.module('trial-app', ['OrderModule', 'AuthModule']).service("APIService",
   return {
     Authenticate: function Authenticate(data) {
       return APIService.MakeRequest('api/auth/login', 'POST', data);
+    },
+    GetUser: function GetUser(data) {
+      return APIService.MakeRequest('api/v1/authenticate_user', 'GET');
+    },
+    Logout: function Logout(data) {
+      return APIService.MakeRequest('api/v1/logout', 'GET');
     }
   };
 }]).service('TokenService', ["$http", "$q", "$storage", function ($http, $q, $storage) {
@@ -121,6 +130,24 @@ angular.module('trial-app', ['OrderModule', 'AuthModule']).service("APIService",
   }
   return {
     template: '<span>' + name + '</span>'
+  };
+}).controller('NavController', function NavController($scope, $http, $window, $storage, AuthService) {
+  var data = $storage.get('user_data');
+  $scope.authenticated = false;
+  if (data) {
+    $scope.authenticated = true;
+  }
+  $scope.logout = function () {
+    AuthService.Logout().then(function (response) {
+      if (response.success) {
+        $storage.remove('user_data');
+        $storage.remove('access_token');
+        $scope.authenticated = false;
+        $window.location.href = "/";
+      } else {
+        alert(response.msg);
+      }
+    });
   };
 });
 /******/ })()

@@ -44,7 +44,7 @@
                   <b ng-bind="k" class="text-capitalize text-orange"></b>
                   <p ng-repeat="(i, p) in v" class="mb-1">
                     <span ng-bind="p.length + 'x'"></span>
-                    <span ng-bind="p[0].title"></span> <i class="bi bi-exclamation-circle-fill"></i>
+                    <span ng-bind="p[0].meal.meal_name"></span> <i class="bi bi-exclamation-circle-fill"></i>
                   </p>
                 </div>
               </td>

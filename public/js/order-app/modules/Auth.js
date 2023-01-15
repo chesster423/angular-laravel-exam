@@ -6,7 +6,6 @@ var __webpack_exports__ = {};
   !*** ./resources/js/order-app/modules/Auth.js ***!
   \************************************************/
 angular.module('AuthModule', []).controller('AuthController', function AuthController($scope, $http, $storage, $window, AuthService) {
-  $storage.remove('access_token');
   $scope.auth = {};
   $scope.login = function () {
     AuthService.Authenticate(angular.copy($scope.auth)).then(function (response) {
@@ -27,7 +26,7 @@ angular.module('AuthModule', []).controller('AuthController', function AuthContr
 /*!*************************************************!*\
   !*** ./resources/js/order-app/modules/Order.js ***!
   \*************************************************/
-angular.module('OrderModule', []).controller('OrderController', function OrderHistoryController($scope, $http, OrderService, AuthService) {
+angular.module('OrderModule', []).controller('OrderController', function OrderHistoryController($scope, $http, OrderService) {
   $scope.orders = [];
   $scope.order_details = [];
   $scope.is_loading = false;
@@ -39,6 +38,9 @@ angular.module('OrderModule', []).controller('OrderController', function OrderHi
         $scope.orders = response.data;
       }
       $scope.is_loading = false;
+      if (!$scope.$$phase) {
+        $scope.$apply();
+      }
     });
   }
   $scope.viewDetails = function (order_id, index) {
